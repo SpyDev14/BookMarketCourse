@@ -1,0 +1,6 @@
+django
+Pillow
+dotenv
+django-cleanup
+# django-environ
+psycopg2
