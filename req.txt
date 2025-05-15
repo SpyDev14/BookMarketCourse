@@ -4,3 +4,10 @@ dotenv
 django-cleanup
 # django-environ
 psycopg2
+djangorestframework
+django.test
+django.filter
+coverage
+social-auth-app-django
+django-debug-toolbar
+django-debug-toolbar-force

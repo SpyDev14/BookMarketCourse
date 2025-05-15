@@ -1,0 +1,57 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post List</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="{% static 'css/store.css' %}">
+</head>
+<body>
+    <header style="
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 8rem;">
+		<h1 style="text-align: center;">Книги</h1>
+        <div style="
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            justify-items: center;
+            gap: 1rem;">
+            <a class="default" href="{% url 'social:begin' 'github' %}">Sign in</a>
+            <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button class="link" type="submit">Log out</button>
+            </form>
+            <a class="default" href="{% url 'book-list' %}">books/</a>
+            <a class="default" href="admin/">admin/</a>
+        </div>
+	</header>
+
+    <main>
+        <div style="
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            ">
+            {% for book in books %}
+            <a class="invisible" href="{% url 'book-detail' pk=book.pk %}">
+                <div class="card">
+                    <h3>{{ book.name }}</h3>
+                    {% if book.description %}
+                    <div>Description:<br>{{ book.description }}</div>
+                    {% endif %}
+                    <div>Price: {{ book.price }}</div>
+                    <small>&lt&lt by {{ book.author }} &gt&gt</small>
+                </div>
+            </a>
+            {% empty %}
+            <h1>Книг нет</h1>
+            {% endfor %}
+        </div>
+    </main>
+</body>
+
+</html>
