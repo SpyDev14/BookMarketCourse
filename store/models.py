@@ -39,6 +39,9 @@ class UserBookRelation(models.Model):
 	rate = models.PositiveSmallIntegerField(choices = RATE_CHOISES, blank = True, null = True)
 	liked = models.BooleanField(default = False)
 	in_bookmarks = models.BooleanField(default = False)
+	
+	class Meta:
+		unique_together = [['user', 'book']]
 
 	def __str__(self) -> str:
 		def prepare_string(text: AnyStr, max_length: int = 32):
