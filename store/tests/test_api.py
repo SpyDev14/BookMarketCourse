@@ -16,27 +16,14 @@ from store.serializers import BookSerializer
 from store.models      import *
 
 
+# Used in setUp
+from store.views import BooksViewSet
+BOOK_QUERYSET = BooksViewSet.queryset
+del BooksViewSet
+
 # used in test_get & test_get_detail
 NORMAL_COUNT_OF_BOOK_DATABASE_QUERIES: int = 2
 
-@staticmethod
-def annotate_and_optimise_query(book_query_set: BaseManager[Book]):
-	return (
-		book_query_set.annotate(
-			likes_count    = Count('userbookrelation', filter = Q(userbookrelation__liked = True)),
-			ratings_count  = Count('userbookrelation', filter = Q(userbookrelation__rate__isnull = False)),
-			average_rating = Round(
-				Avg(
-					'userbookrelation__rate',
-					filter = Q(userbookrelation__rate__isnull = False )
-				),
-				precision = 2
-			)
-		)
-		.select_related('owner')
-		.prefetch_related('readers')
-		.order_by('id')
-	)
 
 # MARK: Books
 class BooksApiTestCase(APITestCase):
@@ -101,26 +88,26 @@ class BooksApiTestCase(APITestCase):
 		]
 
 
-		self.user_own_books = annotate_and_optimise_query(Book.objects.filter(
+		self.user_own_books = BOOK_QUERYSET.filter(
 			pk__range = (
 				self.user_own_books_list[0].pk,
 				self.user_own_books_list[len(self.user_own_books_list)-1].pk
 			)
-		))
+		)
 
-		self.user_not_own_books = annotate_and_optimise_query(Book.objects.filter(
+		self.user_not_own_books = BOOK_QUERYSET.filter(
 			pk__range = (
 				self.user_not_own_books_list[0].pk,
 				self.user_not_own_books_list[len(self.user_not_own_books_list)-1].pk
 			)
-		))
+		)
 
-		self.books = annotate_and_optimise_query(Book.objects.filter(
+		self.books = BOOK_QUERYSET.filter(
 			pk__range = (
 				self.user_own_books[0].pk,
 				self.user_not_own_books[len(self.user_not_own_books)-1].pk
 			)
-		))
+		)
 
 	def test_setUp_books_iterables(self):
 		books = self.user_own_books_list + self.user_not_own_books_list
@@ -420,4 +407,22 @@ class UserBookRelationApiTestCase(APITestCase):
 
 		responce = self.client.patch(url, data = { 'liked' : False }, content_type='application/json')
 		relation.refresh_from_db()
+		self.assertEqual(responce.status_code, status.HTTP_200_OK)
 		self.assertFalse(relation.liked)
+
+
+		responce = self.client.patch(url, data = { 'rate': 3, 'liked' : False }, content_type='application/json')
+		relation.refresh_from_db()
+		self.assertEqual(responce.status_code, status.HTTP_200_OK)
+		self.assertEqual(relation.rate, 3)
+		self.assertFalse(relation.liked)
+
+
+		responce = self.client.patch(url, data = { 'rate': 5, 'liked' : True }, content_type='application/json')
+		relation.refresh_from_db()
+		self.assertEqual(responce.status_code, status.HTTP_200_OK)
+		self.assertEqual(relation.rate, 5)
+		self.assertTrue(relation.liked)
+	
+	def test_try_create_duplicate(self):
+		pass

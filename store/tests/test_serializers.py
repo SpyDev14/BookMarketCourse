@@ -92,7 +92,7 @@ F̱̫̝͟o̰̰r̟̙̲͇͘ ̻̩̫͝I̧͇͉t̘̹̯̙̤͖̳ s̬̠͙̘̕h̶̞̰̻al�
 			),
 			
 			UserBookRelation.objects.create(
-				user = users[2],
+				user = users[1],
 				book = books[1],
 
 				liked = False,
@@ -107,20 +107,8 @@ F̱̫̝͟o̰̰r̟̙̲͇͘ ̻̩̫͝I̧͇͉t̘̹̯̙̤͖̳ s̬̠͙̘̕h̶̞̰̻al�
 			),
 		]
 
-		annotated_books_qs = Book.objects.annotate(
-			likes_count    = Count('userbookrelation', filter = Q(userbookrelation__liked = True)),
-			ratings_count  = Count('userbookrelation', filter = Q(userbookrelation__rate__isnull = False)),
-			average_rating = Round(
-				Avg(
-					'userbookrelation__rate',
-					filter = Q(userbookrelation__rate__isnull = False )
-				),
-				precision = 2
-			)
-		).order_by('id')
 
-
-		data = BookSerializer(annotated_books_qs, many = True).data
+		data = BookSerializer(books, many = True).data
 
 		expected_data = [
 			{
@@ -130,8 +118,8 @@ F̱̫̝͟o̰̰r̟̙̲͇͘ ̻̩̫͝I̧͇͉t̘̹̯̙̤͖̳ s̬̠͙̘̕h̶̞̰̻al�
 				'author': books[0].author,
 				'description': books[0].description,
 				'likes_count': 1,
-				'ratings_count' : 2,
-				'average_rating' : 0.5,
+				'ratings_count': 2,
+				'average_rating': 0.5,
 				'owner': {
 					'username': users[0].username,
 					'email': users[0].email,
@@ -161,8 +149,8 @@ F̱̫̝͟o̰̰r̟̙̲͇͘ ̻̩̫͝I̧͇͉t̘̹̯̙̤͖̳ s̬̠͙̘̕h̶̞̰̻al�
 				'author': books[1].author,
 				'description': books[1].description,
 				'likes_count': 2,
-				'ratings_count' : 3,
-				'average_rating' : 3.67,
+				'ratings_count': 3,
+				'average_rating': 3.67,
 				'owner': None,
 				'readers': [
 					{
@@ -171,9 +159,9 @@ F̱̫̝͟o̰̰r̟̙̲͇͘ ̻̩̫͝I̧͇͉t̘̹̯̙̤͖̳ s̬̠͙̘̕h̶̞̰̻al�
 						'last_name': users[0].last_name,
 					},
 					{
-						'username': users[2].username,
-						'first_name': users[2].first_name,
-						'last_name': users[2].last_name,
+						'username': users[1].username,
+						'first_name': users[1].first_name,
+						'last_name': users[1].last_name,
 					},
 					{
 						'username': users[2].username,
